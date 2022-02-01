@@ -1,0 +1,13 @@
+version: 0.2
+phases:
+  install:
+    commands:
+      - gem install cfn-nag      
+  build:
+    commands:
+      - echo "CHANGED FILES IN THIS CHECKIN for $CC_REPO"
+      - pwd
+      - git log -p -1 | grep '^diff --git' |awk -F" b/" '{print $NF}'
+      - ls -ltra
+      - chmod +x codepipeline/run-cfnnag.sh
+      - /bin/bash codepipeline/run-cfnnag.sh
