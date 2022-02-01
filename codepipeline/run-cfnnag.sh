@@ -7,6 +7,7 @@ echo $?
 ls -ltrd
 cp {ec2,vpc}/*.{json,yml} templates/
 cp codepipeline/*.json templates/
+sleep 60
 
 DATE=$(git log -p -1 --date=relative | grep '^Date:')
 UDATE=$(echo ${DATE} | awk '{print $3}')
