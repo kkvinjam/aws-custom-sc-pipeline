@@ -1,7 +1,7 @@
 #!/bin/bash
 shopt -s nullglob
 echo `pwd`
-ls -ltrd
+ls -ltra 
 mkdir templates
 echo $?
 ls -ltrd
