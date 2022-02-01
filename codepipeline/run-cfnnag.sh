@@ -13,9 +13,9 @@ DATE=$(git log -p -1 --date=relative | grep '^Date:')
 UDATE=$(echo ${DATE} | awk '{print $3}')
 echo "DATE: ${DATE}, UDATE: ${UDATE}"
 
-if [ $UDATE == "seconds"  || $UDATE == "minutes" ]
+if [[ $UDATE == "seconds"  || $UDATE == "minutes" ]]
 then
-    for f in $(git log -p -1 | grep '^diff --git' |awk -F" b/" '{print $NF}' | grep '.json'$); do
+    for f in $(git log -p -1 | grep '^diff --git' |awk -F" b/" '{print $NF}' | egrep '.json|.yml|.yaml'$); do
         if cfn_nag_scan --input-path "$f" --blacklist-path ./codepipeline/blacklist-cfnnag.yml; then
             echo "$f PASSED"
         else
