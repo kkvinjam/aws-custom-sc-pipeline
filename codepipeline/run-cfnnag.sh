@@ -2,7 +2,7 @@
 shopt -s nullglob
 echo `pwd`
 ls -ltrd
-mkdir -p templates/
+mkdir templates
 echo $?
 ls -ltrd
 cp {ec2,vpc}/*.{json,yml} templates/
