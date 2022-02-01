@@ -15,7 +15,10 @@ echo "DATE: ${DATE}, UDATE: ${UDATE}"
 
 if [[ $UDATE == "seconds"  || $UDATE == "minutes" ]]
 then
-    for f in $(git log -p -1 | grep '^diff --git' |awk -F" b/" '{print $NF}' | egrep '.json|.yml|.yaml'$); do
+    updated_list=$(git log -p -1 | grep '^diff --git' |awk -F" b/" '{print $NF}' | egrep '.json|.yml|.yaml'$)
+    echo ${updated_list}
+    for f in ${updated_list}; do
+        echo $f
         if cfn_nag_scan --input-path "$f" --blacklist-path ./codepipeline/blacklist-cfnnag.yml; then
             echo "$f PASSED"
         else
