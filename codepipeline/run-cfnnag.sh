@@ -7,13 +7,13 @@ ls -ltra *
 #ls -ltrd
 #cp {ec2,vpc}/*.{json,yml} templates/
 #cp codepipeline/*.json templates/
-sleep 60
+# sleep 60
 
 DATE=$(git log -p -1 --date=relative | grep '^Date:')
 UDATE=$(echo ${DATE} | awk '{print $3}')
 echo "DATE: ${DATE}, UDATE: ${UDATE}"
 
-if [ $UDATE != "seconds" ]
+if [ $UDATE == "seconds"  || $UDATE == "minutes" ]
 then
     for f in $(git log -p -1 | grep '^diff --git' |awk -F" b/" '{print $NF}' | grep '.json'$); do
         if cfn_nag_scan --input-path "$f" --blacklist-path ./codepipeline/blacklist-cfnnag.yml; then
