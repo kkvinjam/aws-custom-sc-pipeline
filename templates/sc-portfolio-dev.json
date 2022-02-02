@@ -43,12 +43,12 @@
        "PortfolioName": {
             "Type":"String",
             "Description":"Portfolio Name",
-            "Default":"Service Catalog EC2 Reference Architecture"
+            "Default":"Development portfolio"
         },
         "PortfolioDescription": {
             "Type":"String",
             "Description":"Portfolio Description",
-            "Default":"Service Catalog Portfolio that contains reference architecture products for Amazon Elastic Compute Cloud (EC2)."
+            "Default":"Service Catalog portfolio for Development team."
         },
         "LaunchRoleName": {
             "Type":"String",
@@ -212,7 +212,6 @@
         },
         "ec2windowsproductId":{"Value":     { "Fn::GetAtt":["ec2windowsproduct","Outputs.ProductId"]} },
         "ec2nginxwebserverproductId":{"Value":     { "Fn::GetAtt":["ec2nginxwebserverproduct","Outputs.ProductId"]} },
-        "ec2apachewebserverproductId":{"Value":     { "Fn::GetAtt":["ec2apachewebserverproduct","Outputs.ProductId"]} },
         "ec2linuxproductId":{"Value":         { "Fn::GetAtt":["ec2linuxproduct","Outputs.ProductId"]} }
     }
 }
