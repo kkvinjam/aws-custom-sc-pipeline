@@ -13,6 +13,7 @@ DATE=$(git log -p -1 --date=relative | grep '^Date:')
 UDATE=$(echo ${DATE} | awk '{print $3}')
 echo "DATE: ${DATE}, UDATE: ${UDATE}"
 which python
+python --version
 
 if [[ $UDATE == "seconds"  || $UDATE == "minutes" ]]
 then
