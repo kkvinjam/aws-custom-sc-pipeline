@@ -12,6 +12,7 @@ ls -ltra *
 DATE=$(git log -p -1 --date=relative | grep '^Date:')
 UDATE=$(echo ${DATE} | awk '{print $3}')
 echo "DATE: ${DATE}, UDATE: ${UDATE}"
+UDATE=hours
 
 if [[ $UDATE == "seconds"  || $UDATE == "minutes" ]]
 then
