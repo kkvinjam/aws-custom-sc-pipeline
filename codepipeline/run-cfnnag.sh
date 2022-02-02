@@ -1,7 +1,7 @@
 #!/bin/bash
 shopt -s nullglob
 echo `pwd`
-ls -ltra *
+#ls -ltra *
 #mkdir templates
 #echo $?
 #ls -ltrd
@@ -12,6 +12,7 @@ ls -ltra *
 DATE=$(git log -p -1 --date=relative | grep '^Date:')
 UDATE=$(echo ${DATE} | awk '{print $3}')
 echo "DATE: ${DATE}, UDATE: ${UDATE}"
+which python
 
 if [[ $UDATE == "seconds"  || $UDATE == "minutes" ]]
 then
