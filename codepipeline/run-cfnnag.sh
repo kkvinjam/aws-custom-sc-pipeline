@@ -17,7 +17,7 @@ if [[ $UDATE == "seconds"  || $UDATE == "minutes" ]]
 then
     # cfn-nag only on .json|.yaml|.yml files that are uploaded as part of this checkin
     # git log -p -1 lists all the checkins in the last git push.
-    updated_list=$(git log -p -1 | grep '^diff --git' |awk -F" b/" '{print $NF}' | egrep '.json|.yml|.yaml'$)
+    updated_list=$(git log -p -1 | grep '^diff --git' |awk -F" b/" '{print $NF}' | egrep '.json|.yml|.yaml'$ | egrep -v 'buildspec|cfnnag')
     echo "UPDATED LIST: ${updated_list}"
     for f in ${updated_list}; do
         echo "WORKING ON: $f"
