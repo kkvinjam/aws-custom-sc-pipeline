@@ -12,10 +12,11 @@ ls -ltra *
 DATE=$(git log -p -1 --date=relative | grep '^Date:')
 UDATE=$(echo ${DATE} | awk '{print $3}')
 echo "DATE: ${DATE}, UDATE: ${UDATE}"
-UDATE=hours
 
 if [[ $UDATE == "seconds"  || $UDATE == "minutes" ]]
 then
+    # cfn-nag only on .json|.yaml|.yml files that are uploaded as part of this checkin
+    # git log -p -1 lists all the checkins in the last git push.
     updated_list=$(git log -p -1 | grep '^diff --git' |awk -F" b/" '{print $NF}' | egrep '.json|.yml|.yaml'$)
     echo "UPDATED LIST: ${updated_list}"
     for f in ${updated_list}; do
@@ -37,5 +38,5 @@ then
     fi
 
 else
-    echo "SKIPPING: Last checkin happend ${DATE} ago"
+    echo "SKIPPING: Last checkin happened ${DATE}"
 fi
