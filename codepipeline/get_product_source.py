@@ -22,7 +22,7 @@ if __name__ == '__main__':
     MAP_FILE = ARGS.map_file
     RESULT = None
 
-    with open("MAP_FILE", "r") as content:
+    with open(MAP_FILE, "r") as content:
         data = json.load(content)
         content.close()
 
