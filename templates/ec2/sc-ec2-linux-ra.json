@@ -214,7 +214,7 @@
                         "DeviceName": "/dev/xvdh",
                         "Ebs": {
                             "Encrypted": true,
-                            "VolumeSize": "60"
+                            "VolumeSize": "50"
                         }
                     }
                 ]
