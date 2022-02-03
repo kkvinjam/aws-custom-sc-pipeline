@@ -5,14 +5,13 @@ echo `pwd`
 DATE=$(git log -p -1 --date=relative | grep '^Date:')
 UDATE=$(echo ${DATE} | awk '{print $3}')
 echo "DATE: ${DATE}, UDATE: ${UDATE}"
-which python
-python --version
-declare -A portfolio
 
 if [[ $UDATE == "seconds"  || $UDATE == "minutes" ]]
 then
     # Update to only .json|.yaml|.yml files are verified as part of this step
     # git log -p -1 lists all the checkins in the last git push.
+    git log -p -1 | grep '^diff --git'
+    echo
     updated_list=$(git log -p -1 | grep '^diff --git' |awk -F" b/" '{print $NF}' | egrep '.json|.yml|.yaml'$ | egrep -v 'buildspec|cfnnag')
     echo "UPDATED LIST: ${updated_list}"
     for f in ${updated_list}; do
