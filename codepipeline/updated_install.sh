@@ -61,6 +61,11 @@ echo "waiting for stack ${s_name} to complete..."
 aws cloudformation wait stack-create-complete --stack-name ${s_name}
 
 s_name=SC-PROD-EC2-Product
-aws cloudformation create-stack --stack-name ${s_name} --template-url  "${SCDevPrdURL}/sc-prod-product-ec2-linux.json" --parameters "[{\"ParameterKey\":\"RepoRootURL\",\"ParameterValue\":\"$ParamValue\"}]" --capabilities CAPABILITY_IAM CAPABILITY_NAMED_IAM CAPABILITY_AUTO_EXPAND
+aws cloudformation create-stack --stack-name ${s_name} --template-url  "${SCProdPrdURL}/sc-prod-product-ec2-linux.json" --parameters "[{\"ParameterKey\":\"RepoRootURL\",\"ParameterValue\":\"$ParamValue\"}]" --capabilities CAPABILITY_IAM CAPABILITY_NAMED_IAM CAPABILITY_AUTO_EXPAND
+echo "waiting for stack ${s_name} to complete..."
+aws cloudformation wait stack-create-complete --stack-name ${s_name}
+
+s_name=SC-PROD-MYSQL-Product
+aws cloudformation create-stack --stack-name ${s_name} --template-url  "${SCDevPrdURL}/sc-prod-product-mysql-ra.json" --parameters "[{\"ParameterKey\":\"RepoRootURL\",\"ParameterValue\":\"$ParamValue\"}]" --capabilities CAPABILITY_IAM CAPABILITY_NAMED_IAM CAPABILITY_AUTO_EXPAND
 echo "waiting for stack ${s_name} to complete..."
 aws cloudformation wait stack-create-complete --stack-name ${s_name}
