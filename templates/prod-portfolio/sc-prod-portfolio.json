@@ -1,0 +1,205 @@
+{
+    "AWSTemplateFormatVersion": "2010-09-09",
+    "Description": "EC2 Demo Portfolio for Service Catalog. (fdp-1p4da46nc)",
+    "Metadata": {
+        "AWS::CloudFormation::Interface": {
+            "ParameterGroups": [
+                {
+                    "Label": {
+                        "default": "Portfolio Information"
+                    },
+                    "Parameters": [
+                        "PortfolioName",
+                        "PortfolioProvider",
+                        "PortfolioDescription",
+                        "OrgId"
+                    ]
+                },
+                {
+                    "Label": {
+                        "default": "IAM Settings"
+                    },
+                    "Parameters": [
+                        "LinkedRole1",
+                        "LinkedRole2"
+                    ]
+                }
+            ]
+        }
+    },
+    "Parameters": {
+        "PortfolioProvider": {
+            "Type": "String",
+            "Description": "Provider Name",
+            "Default": "IT Services"
+        },
+        "PortfolioName": {
+            "Type": "String",
+            "Description": "Portfolio Name",
+            "Default": "Development portfolio"
+        },
+        "PortfolioDescription": {
+            "Type": "String",
+            "Description": "Portfolio Description",
+            "Default": "Service Catalog portfolio for Development teams."
+        },
+        "LinkedRole1": {
+            "Type": "String",
+            "Description": "(Optional) The name of a role which can execute products in this portfolio."
+        },
+        "LinkedRole2": {
+            "Type": "String",
+            "Description": "(Optional) The name of a second role which can execute products in this portfolio."
+        },
+        "OrgId": {
+            "Type": "String",
+            "Description": "(Optional) AWS Organization ID to share the portofolio with.",
+            "AllowedPattern": "^o-[a-z0-9]{10,32}$"
+        }
+    },
+    "Conditions": {
+        "CondLinkRole1": {
+            "Fn::Not": [
+                {
+                    "Fn::Equals": [
+                        {
+                            "Ref": "LinkedRole1"
+                        },
+                        ""
+                    ]
+                }
+            ]
+        },
+        "CondLinkRole2": {
+            "Fn::Not": [
+                {
+                    "Fn::Equals": [
+                        {
+                            "Ref": "LinkedRole2"
+                        },
+                        ""
+                    ]
+                }
+            ]
+        }
+    },
+    "Resources": {
+        "DevPortfolio": {
+            "Type": "AWS::ServiceCatalog::Portfolio",
+            "Properties": {
+                "ProviderName": {
+                    "Ref": "PortfolioProvider"
+                },
+                "Description": {
+                    "Ref": "PortfolioDescription"
+                },
+                "DisplayName": {
+                    "Ref": "PortfolioName"
+                }
+            }
+        },
+        "addrole1": {
+            "Type": "AWS::ServiceCatalog::PortfolioPrincipalAssociation",
+            "Condition": "CondLinkRole1",
+            "Properties": {
+                "PrincipalARN": {
+                    "Fn::Sub": "arn:aws:iam::${AWS::AccountId}:role/${LinkedRole1}"
+                },
+                "PortfolioId": {
+                    "Ref": "DevPortfolio"
+                },
+                "PrincipalType": "IAM"
+            }
+        },
+        "addrole2": {
+            "Type": "AWS::ServiceCatalog::PortfolioPrincipalAssociation",
+            "Condition": "CondLinkRole2",
+            "Properties": {
+                "PrincipalARN": {
+                    "Fn::Sub": "arn:aws:iam::${AWS::AccountId}:role/${LinkedRole2}"
+                },
+                "PortfolioId": {
+                    "Ref": "DevPortfolio"
+                },
+                "PrincipalType": "IAM"
+            }
+        },
+        "SharePortfolioWithOrgLambda": {
+            "Type": "AWS::Lambda::Function",
+            "Properties": {
+                "Code": {
+                    "ZipFile": "import logging\nimport os\nimport boto3\nimport json\nimport cfnresponse\nfrom botocore.exceptions import ClientError\nLOGGER = logging.getLogger()\nLOGGER.setLevel(logging.INFO)\nSC = boto3.client('servicecatalog')\n\ndef share_portfolio(port_id, org_type, org_value, share=True):\n    '''Share a portfolio with an organization'''\n\n    result = None\n    org_node = dict()\n    org_node['Value'] = org_value\n    org_node['Type'] = org_type\n    try:\n        result = SC.create_portfolio_share(PortfolioId=port_id, OrganizationNode=org_node, ShareTagOptions=share)\n    except ClientError as exe:\n        LOGGER.error('Unable to create portfolio share: %s', str(exe))\n\n    return result\n\ndef delete_share(port_id, org_type, org_value):\n    '''Unshare a portfolio with an organization'''\n\n    result = None\n    org_node = dict()\n    org_node['Value'] = org_value\n    org_node['Type'] = org_type\n    try:\n        result = SC.delete_portfolio_share(PortfolioId=port_id, OrganizationNode=org_node)\n    except ClientError as exe:\n        LOGGER.error('Unable to unshare a portfolio: %s', str(exe))\n\n    return result\n\ndef handler(event, context):\n    '''Return list of AWS Accounts in the organization'''\n\n    LOGGER.info('Event: %s', event)\n    LOGGER.info('Context: %s', context)\n\n    request_type = event['RequestType']\n    port_id=os.environ['PORT_ID']\n    org_type='ORGANIZATION'\n    org_value=os.environ['ORG_VAL']\n\n    if request_type == 'Create':\n        output = share_portfolio(port_id, org_type, org_value, True)\n    elif request_type == 'Update':\n        delete_share(port_id, org_type, org_value)\n        output = share_portfolio(port_id, org_type, org_value, True)\n    elif request_type == 'Delete':\n        output = delete_share(port_id, org_type, org_value)\n\n    data = {}\n    data['Data'] = output\n\n    cfnresponse.send(event, context, cfnresponse.SUCCESS, data)\n"
+                },
+                "Handler": "index.handler",
+                "Runtime": "python3.7",
+                "MemorySize": 128,
+                "Role": {
+                    "Fn::GetAtt": [
+                        "SharePortfolioWithOrgLambdaRole",
+                        "Arn"
+                    ]
+                },
+                "Timeout": 60,
+                "Environment": {
+                    "Variables": {
+                        "PORT_ID": {
+                            "Ref": "DevPortfolio"
+                        },
+                        "ORG_VAL": {
+                            "Ref": "OrgId"
+                        }
+                    }
+                }
+            }
+        },
+        "SharePortfolioWithOrgLambdaRole": {
+            "Type": "AWS::IAM::Role",
+            "Properties": {
+                "AssumeRolePolicyDocument": {
+                    "Version": "2012-10-17",
+                    "Statement": [
+                        {
+                            "Effect": "Allow",
+                            "Principal": {
+                                "Service": [
+                                    "lambda.amazonaws.com"
+                                ]
+                            },
+                            "Action": [
+                                "sts:AssumeRole"
+                            ]
+                        }
+                    ]
+                },
+                "Path": "/",
+                "ManagedPolicyArns": [
+                    "arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole",
+                    "arn:aws:iam::aws:policy/AWSServiceCatalogAdminFullAccess",
+                    "arn:aws:iam::aws:policy/AdministratorAccess"
+                ]
+            }
+        },
+        "SharePortfolioWithOrg": {
+            "Type": "Custom::TriggerLambda",
+            "Properties": {
+                "ServiceToken": {
+                    "Fn::GetAtt": [
+                        "SharePortfolioWithOrgLambda",
+                        "Arn"
+                    ]
+                }
+            }
+        }
+    },
+    "Outputs": {
+        "PortfolioId": {
+            "Description": "Development Portfolio ID",
+            "Value": {
+                "Ref": "DevPortfolio"
+            },
+            "Export": {
+                "Name": "SC-DevPortfolio-ID"
+            }
+        }
+    }
+}

@@ -1,0 +1,139 @@
+AWSTemplateFormatVersion: 2010-09-09
+Description: EC2 Demo Portfolio for Service Catalog. (fdp-1p4da46nc)
+Metadata:
+  'AWS::CloudFormation::Interface':
+    ParameterGroups:
+      - Label:
+          default: Portfolio Information
+        Parameters:
+          - PortfolioName
+          - PortfolioProvider
+          - PortfolioDescription
+          - OrgId
+Parameters:
+  PortfolioProvider:
+    Type: String
+    Description: Provider Name
+    Default: IT Services
+  PortfolioName:
+    Type: String
+    Description: Portfolio Name
+    Default: Production portfolio
+  PortfolioDescription:
+    Type: String
+    Description: Portfolio Description
+    Default: Service Catalog portfolio for Production teams.
+  OrgId:
+    Type: String
+    Description: (Optional) AWS Organization ID to share the portofolio with.
+    AllowedPattern: '^o-[a-z0-9]{10,32}$'
+Resources:
+  ProdPortfolio:
+    Type: 'AWS::ServiceCatalog::Portfolio'
+    Properties:
+      ProviderName: !Ref PortfolioProvider
+      Description: !Ref PortfolioDescription
+      DisplayName: !Ref PortfolioName
+  SharePortfolioWithOrgLambda:
+    Type: 'AWS::Lambda::Function'
+    #Condition: CondOrgId
+    Properties:
+      Code:
+        ZipFile: |
+          import logging
+          import os
+          import boto3
+          import json
+          import cfnresponse
+          from botocore.exceptions import ClientError
+          LOGGER = logging.getLogger()
+          LOGGER.setLevel(logging.INFO)
+          SC = boto3.client('servicecatalog')
+
+          def share_portfolio(port_id, org_type, org_value, share=True):
+              '''Share a portfolio with an organization'''
+
+              result = None
+              org_node = dict()
+              org_node['Value'] = org_value
+              org_node['Type'] = org_type
+              try:
+                  result = SC.create_portfolio_share(PortfolioId=port_id, OrganizationNode=org_node, ShareTagOptions=share)
+              except ClientError as exe:
+                  LOGGER.error('Unable to create portfolio share: %s', str(exe))
+
+              return result
+
+          def delete_share(port_id, org_type, org_value):
+              '''Unshare a portfolio with an organization'''
+
+              result = None
+              org_node = dict()
+              org_node['Value'] = org_value
+              org_node['Type'] = org_type
+              try:
+                  result = SC.delete_portfolio_share(PortfolioId=port_id, OrganizationNode=org_node)
+              except ClientError as exe:
+                  LOGGER.error('Unable to unshare a portfolio: %s', str(exe))
+
+              return result
+
+          def handler(event, context):
+              '''Return list of AWS Accounts in the organization'''
+
+              LOGGER.info('Event: %s', event)
+              LOGGER.info('Context: %s', context)
+
+              request_type = event['RequestType']
+              port_id=os.environ['PORT_ID']
+              org_type='ORGANIZATION'
+              org_value=os.environ['ORG_VAL']
+
+              if request_type == 'Create':
+                  output = share_portfolio(port_id, org_type, org_value, True)
+              elif request_type == 'Update':
+                  delete_share(port_id, org_type, org_value)
+                  output = share_portfolio(port_id, org_type, org_value, True)
+              elif request_type == 'Delete':
+                  output = delete_share(port_id, org_type, org_value)
+
+              data = {}
+              data['Data'] = output
+
+              cfnresponse.send(event, context, cfnresponse.SUCCESS, data)
+      Handler: index.handler
+      Runtime: python3.7
+      MemorySize: 128
+      Role: !GetAtt SharePortfolioWithOrgLambdaRole.Arn
+      Timeout: 60
+      Environment:
+        Variables:
+          PORT_ID: !Ref ProdPortfolio
+          ORG_VAL: !Ref OrgId
+  SharePortfolioWithOrgLambdaRole:
+    Type: 'AWS::IAM::Role'
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: 2012-10-17
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service:
+                - lambda.amazonaws.com
+            Action:
+              - 'sts:AssumeRole'
+      Path: /
+      ManagedPolicyArns:
+        - arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole
+        - arn:aws:iam::aws:policy/AWSServiceCatalogAdminFullAccess
+        - arn:aws:iam::aws:policy/AdministratorAccess
+  SharePortfolioWithOrg:
+    Type: 'Custom::TriggerLambda'
+    Properties:
+      ServiceToken: !GetAtt SharePortfolioWithOrgLambda.Arn
+Outputs:
+  PortfolioId:
+    Description: Production Portfolio ID
+    Value: !Ref ProdPortfolio
+    Export:
+      Name: 'SC-ProdPortfolio-ID'

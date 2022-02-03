@@ -27,10 +27,10 @@ aws cloudformation create-stack-instances --stack-set-name SC-LCROLES-EC2VPC --d
 aws cloudformation create-stack-set --stack-set-name SC-LCROLES-RDS --template-url "${LcLocURL}/sc-rds-launchrole.yml" --permission-model SERVICE_MANAGED --auto-deployment Enabled=true,RetainStacksOnAccountRemoval=true --capabilities CAPABILITY_IAM CAPABILITY_NAMED_IAM
 aws cloudformation create-stack-instances --stack-set-name SC-LCROLES-RDS --deployment-targets OrganizationalUnitIds=${ROOT_ID} --regions "${AWS_REGION}"
 
-aws cloudformation create-stack --stack-name SC-LCROLES-EC2VPC --template-url "${LcLocURL}/sc-ec2vpc-launchrole.yml" 
+aws cloudformation create-stack --stack-name SC-LCROLES-EC2VPC --template-url "${LcLocURL}/sc-ec2vpc-launchrole.yml" --capabilities CAPABILITY_IAM CAPABILITY_NAMED_IAM CAPABILITY_AUTO_EXPAND
 aws cloudformation wait stack-create-complete --stack-name SC-LCROLES-EC2VPC
 
-aws cloudformation create-stack --stack-name SC-LCROLES-RDS --template-url "${LcLocURL}/sc-rds-launchrole.yml" 
+aws cloudformation create-stack --stack-name SC-LCROLES-RDS --template-url "${LcLocURL}/sc-rds-launchrole.yml" --capabilities CAPABILITY_IAM CAPABILITY_NAMED_IAM CAPABILITY_AUTO_EXPAND
 aws cloudformation wait stack-create-complete --stack-name SC-LCROLES-RDS
 
 
@@ -45,12 +45,22 @@ aws cloudformation create-stack --stack-name ${s_name} --template-url  "${SCDevP
 echo "waiting for stack ${s_name} to complete..."
 aws cloudformation wait stack-create-complete --stack-name ${s_name}
 
+s_name=SC-DEV-MYSQL-Product
+aws cloudformation create-stack --stack-name ${s_name} --template-url  "${SCDevPrdURL}/sc-dev-product-mysql-ra.json" --parameters "[{\"ParameterKey\":\"RepoRootURL\",\"ParameterValue\":\"$ParamValue\"}]" --capabilities CAPABILITY_IAM CAPABILITY_NAMED_IAM CAPABILITY_AUTO_EXPAND
+echo "waiting for stack ${s_name} to complete..."
+aws cloudformation wait stack-create-complete --stack-name ${s_name}
+
 #s_name=SC-DEV-VPC-Product
 #aws cloudformation create-stack --stack-name ${s_name} --template-url  "${S3RootURL}/templates/dev-portfolio/sc_products/sc-dev-product-vpc-ra.json" --capabilities CAPABILITY_IAM CAPABILITY_NAMED_IAM CAPABILITY_AUTO_EXPAND
 #echo "waiting for stack ${s_name} to complete..."
 #aws cloudformation wait stack-create-complete --stack-name ${s_name}
 
-s_name=SC-DEV-MYSQL-Product
-aws cloudformation create-stack --stack-name ${s_name} --template-url  "${SCDevPrdURL}/sc-dev-product-mysql-ra.json" --parameters "[{\"ParameterKey\":\"RepoRootURL\",\"ParameterValue\":\"$ParamValue\"}]" --capabilities CAPABILITY_IAM CAPABILITY_NAMED_IAM CAPABILITY_AUTO_EXPAND
+s_name=SC-PROD-Portfolio
+aws cloudformation create-stack --stack-name ${s_name} --template-url  "${SCProdPortURL}/sc-prod-portfolio.yml" --parameters "[{\"ParameterKey\":\"OrgId\",\"ParameterValue\":\"${ORG_ID}\"}]" --capabilities CAPABILITY_IAM CAPABILITY_NAMED_IAM CAPABILITY_AUTO_EXPAND
+echo "waiting for stack ${s_name} to complete..."
+aws cloudformation wait stack-create-complete --stack-name ${s_name}
+
+s_name=SC-PROD-EC2-Product
+aws cloudformation create-stack --stack-name ${s_name} --template-url  "${SCDevPrdURL}/sc-prod-product-ec2-linux.json" --parameters "[{\"ParameterKey\":\"RepoRootURL\",\"ParameterValue\":\"$ParamValue\"}]" --capabilities CAPABILITY_IAM CAPABILITY_NAMED_IAM CAPABILITY_AUTO_EXPAND
 echo "waiting for stack ${s_name} to complete..."
 aws cloudformation wait stack-create-complete --stack-name ${s_name}
