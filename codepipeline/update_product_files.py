@@ -48,13 +48,11 @@ def get_secret(secret_name):
     session = boto3.session.Session()
     client = session.client('secretsmanager')
     get_secret_value_response = None
-    print('SECRET NAME: %s', secret_name)
 
     try:
         get_secret_value_response = client.get_secret_value(
             SecretId=secret_name
         )
-        print('SECRET RESPONSE: %s', get_secret_value_response)
 
     except ClientError as e:
         if e.response['Error']['Code'] == 'DecryptionFailureException':
@@ -101,7 +99,7 @@ def checkin_to_git_repo(access_key, repo_name, file_path):
     file_names = [ file_name ]
 
     time_stamp = datetime.now().strftime("%m%d%y-%H%M%S")
-    commit_message = 'Commit for' + file_name + 'at' + time_stamp
+    commit_message = 'Commit for ' + file_name + ' at ' + time_stamp
 
     main_ref = repo.get_git_ref('heads/main')
     main_sha = main_ref.object.sha
@@ -142,6 +140,5 @@ if __name__ == '__main__':
     pers_access_key = get_secret(SECRET)
     print(pers_access_key)
     if pers_access_key:
-        print(json.loads(pers_access_key['SecretString']))
         secret_key = json.loads(pers_access_key['SecretString'])['Token']
     checkin_to_git_repo(secret_key, REPO, PORT_FILE)
