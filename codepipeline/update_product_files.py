@@ -112,7 +112,8 @@ def checkin_to_git_repo(access_key, repo_name, file_path):
         with open(entry) as input_file:
             data = input_file.read()
         print('Filename:', file_names[i])
-        element = InputGitTreeElement(file_names[i], '100644', 'blob', data)
+        print('Filelist:', file_list[i])
+        element = InputGitTreeElement(file_list[i], '100644', 'blob', data)
         element_list.append(element)
 
     print('Element List:', element_list)
