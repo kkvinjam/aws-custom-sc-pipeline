@@ -17,9 +17,10 @@ then
         if [[ $f == templates/ec2* || $f == templates/rds* ]]
         then
             prod_src=$(python codepipeline/get_product_source.py -f ${f})
+            echo "Product Source Found: ${prod_src}"
             if [[ prod_src != "None" ]]
             then
-                python codepipeline/get_product_source.py -f $f 
+                python codepipeline/update_product_files.py -f $f
             else
                 echo "SKIPPING: No source file found for ${f}"
             fi
