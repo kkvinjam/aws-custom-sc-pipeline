@@ -1,0 +1,22 @@
+version: 0.2
+phases:
+    build:
+        commands:
+            - echo "S3 Upload Beginning"
+            - export ACCID=$(aws sts get-caller-identity --query 'Account' | tr -d '"')
+            - aws s3 sync . s3://$DEPLOY_BUCKET/ --delete --exclude "*" --include "*.json" --include "*.yml"
+            - echo "S3 Upload Complete, updating cloudformation now..."
+            # - /bin/bash codepipeline/run-pipelineupdate.sh
+            # - /bin/bash codepipeline/run-cloudformationupdate.sh
+            - aws cloudformation update-stack --stack-name SC_DEV_Portfolio --template-url  "https://$DEPLOY_BUCKET.s3.amazonaws.com/templates/dev-portfolio/sc-dev-portfolio.yml" --capabilities CAPABILITY_IAM CAPABILITY_NAMED_IAM CAPABILITY_AUTO_EXPAND
+            - aws cloudformation update-stack --stack-name SC-DEV-EC2-Product --template-url  "https://$DEPLOY_BUCKET.s3.amazonaws.com/templates/devenv/ec2/sc-ec2-linux-ra.json" --capabilities CAPABILITY_IAM CAPABILITY_NAMED_IAM CAPABILITY_AUTO_EXPAND
+            - aws cloudformation update-stack --stack-name SC-DEV-VPC-Product --template-url  "https://$DEPLOY_BUCKET.s3.amazonaws.com/templates/devenv/ec2/sc-vpc-ra.json" --capabilities CAPABILITY_IAM CAPABILITY_NAMED_IAM CAPABILITY_AUTO_EXPAND
+            - aws cloudformation update-stack --stack-name SC-DEV-MYSQL-Product --template-url  "https://$DEPLOY_BUCKET.s3.amazonaws.com/templates/devenv/ec2/sc-mysql-ra.json" --capabilities CAPABILITY_IAM CAPABILITY_NAMED_IAM CAPABILITY_AUTO_EXPAND
+            - aws cloudformation wait stack-create-complete --stack-name SC_DEV_Portfolio
+            - aws cloudformation wait stack-create-complete --stack-name SC-DEV-EC2-Product
+            - aws cloudformation wait stack-create-complete --stack-name SC-DEV-VPC-Product
+            - aws cloudformation wait stack-create-complete --stack-name SC-DEV-MYSQL-Product
+
+    post_build:
+        commands:
+            - echo "Deploy complete"

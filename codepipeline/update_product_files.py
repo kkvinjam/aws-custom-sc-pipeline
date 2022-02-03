@@ -116,8 +116,6 @@ def checkin_to_git_repo(access_key, repo_name, file_path):
         element = InputGitTreeElement(file_list[i], '100644', 'blob', data)
         element_list.append(element)
 
-    print('Element List:', element_list)
-    print('Base Tree:', base_tree)
     tree = repo.create_git_tree(element_list, base_tree)
     parent = repo.get_git_commit(main_sha)
     commit = repo.create_git_commit(commit_message, tree, [parent])
@@ -145,7 +143,6 @@ if __name__ == '__main__':
     print('PORT File:', PORT_FILE)
     update_sc_product_version(PORT_FILE)
     pers_access_key = get_secret(SECRET)
-    print(pers_access_key)
     if pers_access_key:
         secret_key = json.loads(pers_access_key['SecretString'])['Token']
     checkin_to_git_repo(secret_key, REPO, PORT_FILE)

@@ -5,15 +5,13 @@
       {
         "PortfolioProvider": {
             "Type":"String",
-            "Description":"Owner and Distributor Name"
+            "Description":"Owner and Distributor Name",
+            "Default": "CCOE"
         },
-        "LaunchConstraintARN": {
+        "LaunchConstraintRole": {
             "Type":"String",
-            "Description":"ARN of the launch constraint role for RDS products."
-        },
-        "PortfolioId":{
-            "Type":"String",
-            "Description":"The ServiceCatalog portfolio this product will be attached to."
+            "Description":"Name of the local launch constraint role for RDS products.",
+            "Default": "SCRDSLaunchRole"
         },
         "RepoRootURL": {
             "Type":"String",
@@ -22,7 +20,7 @@
         
       },
     "Resources": {
-        "scrdsproduct": {
+        "SCProduct": {
             "Type": "AWS::ServiceCatalog::CloudFormationProduct",
             "Properties": {
                 "Name": "Amazon RDS MySQL Database",
@@ -37,29 +35,50 @@
                     {
                         "Description": "baseline version",
                         "Info": {
-                            "LoadTemplateFromURL": {"Fn::Sub": "${RepoRootURL}rds/sc-rds-mysql-ra.json"}
+                            "LoadTemplateFromURL": {"Fn::Sub": "${RepoRootURL}templates/dev-portfolio/rds/sc-rds-mysql-ra.json"}
                         },
                         "Name": "v1.0"
                     }
                 ]
             }
         },
-        "Associaterds":{
+        "productPortfolioAssociation":{
           "Type" : "AWS::ServiceCatalog::PortfolioProductAssociation",
           "Properties" : {
-            "PortfolioId" : {"Ref":"PortfolioId"},
-            "ProductId" :   {"Ref":"scrdsproduct"}
+            "PortfolioId": {
+              "Fn::ImportValue": "SC-DevPortfolio-ID"
+            },
+            "ProductId" :   {"Ref":"SCProduct"}
           }
         },
         "constraintrds":{
           "Type" : "AWS::ServiceCatalog::LaunchRoleConstraint",
-          "DependsOn" : "Associaterds",
+          "DependsOn" : "productPortfolioAssociation",
           "Properties" : {
-            "PortfolioId" : {"Ref":"PortfolioId"},
-            "ProductId" :   {"Ref":"scrdsproduct"},
-            "RoleArn" : {"Ref":"LaunchConstraintARN"},
-            "Description": {"Ref":"LaunchConstraintARN"}
+            "PortfolioId": {
+              "Fn::ImportValue": "SC-DevPortfolio-ID"
+            },
+            "ProductId": {
+                "Ref": "SCProduct"
+            },
+            "LocalRoleName": {
+                "Ref": "LaunchConstraintRole"
+            },
+            "Description": {
+                "Ref": "LaunchConstraintRole"
+            }
           }
         }
-    }
+    },
+    "Outputs": {
+      "PortfolioId": {
+          "Description": "SC RDS MYSQL Product",
+          "Value": {
+              "Ref": "SCProduct"
+          },
+          "Export": {
+              "Name": "SC-DEV-RDS-MySQL-ProductId"
+          }
+      }
+  }
 }
