@@ -1,31 +1,27 @@
-
-from importlib.metadata import entry_points
+'''
+Update the respective SC product file when a source file changes.
+'''
 import json
 import base64
 import argparse
-from os import access
 from datetime import datetime
 from github import Github
 from github import InputGitTreeElement
 
 import boto3
 from botocore.exceptions import ClientError
-from isort import file
-from jsii import enum
-from pprint import pprint as pp
-
 
 def update_sc_product_version(file_name):
     '''
     Update the file name with latest version
-    Increment last digit and add new provisioning artifact. 
+    Increment last digit and add new provisioning artifact.
     '''
-    
-    try: 
-        content = open(file_name, 'r')
-        object = json.load(content)
-        content.close()
-        prod_obj = object['Resources']['SCProduct']
+
+    try:
+        with open(file_name, 'r') as content:
+            data = json.load(content)
+            content.close()
+        prod_obj = data['Resources']['SCProduct']
         artifacts = prod_obj['Properties']['ProvisioningArtifactParameters']
         latest_artifact = artifacts[-1]
         latest_version = latest_artifact['Name']
@@ -36,10 +32,10 @@ def update_sc_product_version(file_name):
         new_artifact=latest_artifact.copy()
         new_artifact['Name'] = updated_version
         artifacts.append(new_artifact)
-        new_content = open(file_name, 'w')
-        json.dump(object, new_content)
+        with open(file_name, 'w') as new_content:
+            json.dump(data, new_content)
+            new_content.close()
 
-        new_content.close()
         print('File updated')
     except ClientError as exe:
         raise exe
@@ -71,7 +67,8 @@ def get_secret(secret_name):
             # Deal with the exception here, and/or rethrow at your discretion.
             raise e
         elif e.response['Error']['Code'] == 'InvalidRequestException':
-            # You provided a parameter value that is not valid for the current state of the resource.
+            # You provided a parameter value that is not valid for
+            # the current state of the resource.
             # Deal with the exception here, and/or rethrow at your discretion.
             raise e
         elif e.response['Error']['Code'] == 'ResourceNotFoundException':
@@ -80,7 +77,8 @@ def get_secret(secret_name):
             raise e
     else:
         # Decrypts secret using the associated KMS key.
-        # Depending on whether the secret is a string or binary, one of these fields will be populated.
+        # Depending on whether the secret is a string or binary,
+        # one of these fields will be populated.
         if 'SecretString' in get_secret_value_response:
             secret = get_secret_value_response['SecretString']
         else:
@@ -125,21 +123,20 @@ if __name__ == '__main__':
 
     #PARSER.add_argument("-a", "--artifact", type=str, required=True, help="Artifact file")
     PARSER.add_argument("-p", "--port_file", type=str, required=True, help="Portfolio name")
-    PARSER.add_argument("-s", "--secret", type=str, default='github/kkvinjam', \
-                        help="secrets manager secret")
+    PARSER.add_argument("-s", "--secret_name", type=str, default='github/kkvinjam', \
+                        help="secrets manager secret name")
     PARSER.add_argument("-r", "--repo", type=str, default='aws-custom-sc-pipeline', \
                         help="repository name in GitHub repo")
 
     ARGS = PARSER.parse_args()
     #ARTIFACT = ARGS.artifact
     PORT_FILE = ARGS.port_file
-    SECRET = ARGS.secret
+    SECRET = ARGS.secret_name
     REPO = ARGS.repo
     # FILE = 'templates/dev-portfolio/sc-dev-product-ec2-linux.json'
 
     update_sc_product_version(PORT_FILE)
-    access_key = get_secret(SECRET)
-    if access_key:
-        secret = json.loads(access_key['SecretString'])['Token']
-    checkin_to_git_repo(secret, REPO, PORT_FILE)
-
+    pers_access_key = get_secret(SECRET)
+    if pers_access_key:
+        secret_key = json.loads(pers_access_key['SecretString'])['Token']
+    checkin_to_git_repo(secret_key, REPO, PORT_FILE)
