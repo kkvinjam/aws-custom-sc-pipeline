@@ -8,6 +8,9 @@ ACODE=$?
 if [[ "$ACODE" -eq "255" && "$ASTR" =~ .(No updates are to be performed\.)$ ]]
 then 
   echo "No updates, continue."
+elif [[ "$ACODE" -eq "0" ]]
+then
+  echo "Stack update in progress"
 else
   echo "$ACODE $ASTR"
   touch FAILED
@@ -18,6 +21,9 @@ ACODE=$?
 if [[ "$ACODE" -eq "255" && "$ASTR" =~ .(No updates are to be performed\.)$ ]]
 then 
   echo "No updates, continue."
+elif [[ "$ACODE" -eq "0" ]]
+then
+  echo "Stack update in progress"
 else
   echo "$ACODE $ASTR"
   touch FAILED
@@ -28,6 +34,9 @@ ACODE=$?
 if [[ "$ACODE" -eq "255" && "$ASTR" =~ .(No updates are to be performed\.)$ ]]
 then 
   echo "No updates, continue."
+elif [[ "$ACODE" -eq "0" ]]
+then
+  echo "Stack update in progress"
 else
   echo "$ACODE $ASTR"
   touch FAILED
