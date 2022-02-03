@@ -1,0 +1,17 @@
+{
+	"folders": [
+		{
+			"path": "."
+		},
+		{
+			"path": "../aws-service-catalog-reference-architectures"
+		},
+		{
+			"path": "../../../AWS/BB-CT/Blogs/cloudops-695"
+		},
+		{
+			"path": "../../../AWS/ServiceCatalog/Customer/WesternUnion"
+		}
+	],
+	"settings": {}
+}
