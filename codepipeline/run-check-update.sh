@@ -25,11 +25,13 @@ then
                 python codepipeline/get_product_source.py -f $f 
             else
                 echo "SKIPPING: No source file found for ${f}"
+            fi
         elif [[ $f == "templates/dev-portfolio*" || $f == "templates/prod-portfolio" ]]
         then
             echo "${f} is SC Product file, not need of update. Continue to deploy"
         else
             echo "SKIPPING: ${f} is not a supported sc product."
+        fi
     done
 else
     echo "SKIPPING: Last checkin happened ${DATE}"
