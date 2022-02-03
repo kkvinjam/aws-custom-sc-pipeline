@@ -51,7 +51,7 @@
             "ProductId" :   {"Ref":"SCProduct"}
           }
         },
-        "constraintrds":{
+        "LaunchConstraint":{
           "Type" : "AWS::ServiceCatalog::LaunchRoleConstraint",
           "DependsOn" : "productPortfolioAssociation",
           "Properties" : {

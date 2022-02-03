@@ -27,6 +27,13 @@ aws cloudformation create-stack-instances --stack-set-name SC-LCROLES-EC2VPC --d
 aws cloudformation create-stack-set --stack-set-name SC-LCROLES-RDS --template-url "${LcLocURL}/sc-rds-launchrole.yml" --permission-model SERVICE_MANAGED --auto-deployment Enabled=true,RetainStacksOnAccountRemoval=true --capabilities CAPABILITY_IAM CAPABILITY_NAMED_IAM
 aws cloudformation create-stack-instances --stack-set-name SC-LCROLES-RDS --deployment-targets OrganizationalUnitIds=${ROOT_ID} --regions "${AWS_REGION}"
 
+aws cloudformation create-stack --stack-name SC-LCROLES-EC2VPC --template-url "${LcLocURL}/sc-ec2vpc-launchrole.yml" 
+aws cloudformation wait stack-create-complete --stack-name SC-LCROLES-EC2VPC
+
+aws cloudformation create-stack --stack-name SC-LCROLES-RDS --template-url "${LcLocURL}/sc-rds-launchrole.yml" 
+aws cloudformation wait stack-create-complete --stack-name SC-LCROLES-RDS
+
+
 echo "Step-3: Create Service Catalog portfolio/products for DEV and PROD envs"
 s_name=SC-DEV-Portfolio
 aws cloudformation create-stack --stack-name ${s_name} --template-url  "${SCDevPortURL}/sc-dev-portfolio.yml" --parameters "[{\"ParameterKey\":\"OrgId\",\"ParameterValue\":\"${ORG_ID}\"}]" --capabilities CAPABILITY_IAM CAPABILITY_NAMED_IAM CAPABILITY_AUTO_EXPAND
