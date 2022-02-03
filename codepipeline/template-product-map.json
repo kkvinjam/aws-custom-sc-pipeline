@@ -1,5 +1,5 @@
 {
-    "templates/ec2/sc-ec2-linux-ra.json" : "templates/dev-portfolio/sc-dev-product-ec2-linux.json",
-    "templates/ec2/sc-vpc-ra.json": "templates/dev-portfolio/sc-dev-product-vpc-ra.json",
-    "templates/ec2/sc-rds-mysql-ra.json": "templates/dev-portfolio/sc-dev-product-mysql-ra.json"
+    "templates/dev-portfolio/ec2/sc-ec2-linux-ra.json" : "templates/dev-portfolio/sc_products/sc-dev-product-ec2-linux.json",
+    "templates/dev-portfolio/ec2/sc-vpc-ra.json": "templates/dev-portfolio/sc_products/sc-dev-product-vpc-ra.json",
+    "templates/dev-portfolio/rds/sc-rds-mysql-ra.json": "templates/dev-portfolio/sc_products/sc-dev-product-mysql-ra.json"
 }
