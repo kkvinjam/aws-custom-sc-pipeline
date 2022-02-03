@@ -14,7 +14,7 @@ then
     echo "UPDATED LIST: ${updated_list}"
     for f in ${updated_list}; do
         echo "WORKING ON: $f"
-        if [[ $f == templates/ec2* || $f == templates/rds* ]]
+        if [[ $f == templates/dev-portfolio/ec2/* || $f == templates/dev-portfolio/rds/* ]]
         then
             python codepipeline/get_product_source.py -f ${f}
             prod_src=$(python codepipeline/get_product_source.py -f ${f})
@@ -25,7 +25,7 @@ then
             else
                 echo "SKIPPING: No source file found for ${f}"
             fi
-        elif [[ $f == templates/dev-portfolio* || $f == templates/prod-portfolio* ]]
+        elif [[ $f == templates/dev-portfolio/sc_products/* || $f == templates/prod-portfolio/sc_products/*  || $f == templates/dev-portfolio/sc-dev-portfolio* ]]
         then
             echo "${f} is SC Product file, not need of update. Continue to deploy"
         else
