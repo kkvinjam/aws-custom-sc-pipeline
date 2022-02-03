@@ -10,11 +10,6 @@ Metadata:
           - PortfolioProvider
           - PortfolioDescription
           - OrgId
-      - Label:
-          default: IAM Settings
-        Parameters:
-          - LinkedRole1
-          - LinkedRole2
 Parameters:
   PortfolioProvider:
     Type: String
@@ -28,29 +23,10 @@ Parameters:
     Type: String
     Description: Portfolio Description
     Default: Service Catalog portfolio for Development teams.
-  LinkedRole1:
-    Type: String
-    Description: >-
-      (Optional) The name of a role which can execute products in this
-      portfolio.
-  LinkedRole2:
-    Type: String
-    Description: >-
-      (Optional) The name of a second role which can execute products in this
-      portfolio.
   OrgId:
     Type: String
     Description: (Optional) AWS Organization ID to share the portofolio with.
     AllowedPattern: '^o-[a-z0-9]{10,32}$'
-Conditions:
-  CondLinkRole1: !Not 
-    - !Equals 
-      - !Ref LinkedRole1
-      - ''
-  CondLinkRole2: !Not 
-    - !Equals 
-      - !Ref LinkedRole2
-      - ''
 Resources:
   DevPortfolio:
     Type: 'AWS::ServiceCatalog::Portfolio'
@@ -58,20 +34,6 @@ Resources:
       ProviderName: !Ref PortfolioProvider
       Description: !Ref PortfolioDescription
       DisplayName: !Ref PortfolioName
-  addrole1:
-    Type: 'AWS::ServiceCatalog::PortfolioPrincipalAssociation'
-    Condition: CondLinkRole1
-    Properties:
-      PrincipalARN: !Sub 'arn:aws:iam::${AWS::AccountId}:role/${LinkedRole1}'
-      PortfolioId: !Ref DevPortfolio
-      PrincipalType: IAM
-  addrole2:
-    Type: 'AWS::ServiceCatalog::PortfolioPrincipalAssociation'
-    Condition: CondLinkRole2
-    Properties:
-      PrincipalARN: !Sub 'arn:aws:iam::${AWS::AccountId}:role/${LinkedRole2}'
-      PortfolioId: !Ref DevPortfolio
-      PrincipalType: IAM
   SharePortfolioWithOrgLambda:
     Type: 'AWS::Lambda::Function'
     #Condition: CondOrgId

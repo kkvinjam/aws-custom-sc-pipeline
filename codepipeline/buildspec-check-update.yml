@@ -7,7 +7,6 @@ phases:
     commands:
       - echo "verifying the list of upated files"
       - pwd
-      - git log -p -1 | grep '^diff --git'
       - git log -p -1 | grep '^diff --git' |awk -F" b/" '{print $NF}'
       - chmod +x codepipeline/run-check-update.sh
       - /bin/bash codepipeline/run-check-update.sh
