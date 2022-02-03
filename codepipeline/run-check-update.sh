@@ -18,9 +18,9 @@ then
         then
             prod_src=$(python codepipeline/get_product_source.py -f ${f})
             echo "Product Source Found: ${prod_src}"
-            if [[ prod_src != "None" ]]
+            if [[ $prod_src != "None" ]]
             then
-                python codepipeline/update_product_files.py -f $f
+                python codepipeline/update_product_files.py -p $prod_src
             else
                 echo "SKIPPING: No source file found for ${f}"
             fi
