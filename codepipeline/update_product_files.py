@@ -137,6 +137,8 @@ if __name__ == '__main__':
 
     update_sc_product_version(PORT_FILE)
     pers_access_key = get_secret(SECRET)
+    print(pers_access_key)
     if pers_access_key:
+        print(json.loads(pers_access_key['SecretString']))
         secret_key = json.loads(pers_access_key['SecretString'])['Token']
     checkin_to_git_repo(secret_key, REPO, PORT_FILE)
