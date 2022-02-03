@@ -16,6 +16,7 @@ then
         echo "WORKING ON: $f"
         if [[ $f == templates/ec2* || $f == templates/rds* ]]
         then
+            python codepipeline/get_product_source.py -f ${f}
             prod_src=$(python codepipeline/get_product_source.py -f ${f})
             echo "Product Source Found: ${prod_src}"
             if [[ $prod_src != "None" ]]

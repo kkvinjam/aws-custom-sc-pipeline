@@ -28,3 +28,5 @@ if __name__ == '__main__':
 
     if FILE_NAME in data:
         RESULT = data[FILE_NAME]
+
+    print(RESULT)
