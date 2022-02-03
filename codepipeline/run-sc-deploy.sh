@@ -13,7 +13,7 @@ else
   touch FAILED
 fi
 
-ASTR=$((aws cloudformation update-stack --stack-name SC-DEV-EC2-Product --template-url  "https://$DEPLOY_BUCKET.s3.amazonaws.com/templates/devenv/ec2/sc-ec2-linux-ra.json" --parameters '[{"ParameterKey":"RepoRootURL","UsePreviousValue":true}]' --capabilities CAPABILITY_IAM CAPABILITY_NAMED_IAM CAPABILITY_AUTO_EXPAND) 2>&1)
+ASTR=$((aws cloudformation update-stack --stack-name SC-DEV-EC2-Product --template-url  "https://$DEPLOY_BUCKET.s3.amazonaws.com/templates/dev-portfolio/sc_products/sc-dev-product-ec2-linux.json" --parameters '[{"ParameterKey":"RepoRootURL","UsePreviousValue":true}]' --capabilities CAPABILITY_IAM CAPABILITY_NAMED_IAM CAPABILITY_AUTO_EXPAND) 2>&1)
 ACODE=$?
 if [[ "$ACODE" -eq "255" && "$ASTR" =~ .(No updates are to be performed\.)$ ]]
 then 
@@ -23,7 +23,7 @@ else
   touch FAILED
 fi
 
-ASTR=$((aws cloudformation update-stack --stack-name SC-DEV-MYSQL-Product --template-url  "https://$DEPLOY_BUCKET.s3.amazonaws.com/templates/devenv/ec2/sc-mysql-ra.json" --parameters '[{"ParameterKey":"RepoRootURL","UsePreviousValue":true}]' --capabilities CAPABILITY_IAM CAPABILITY_NAMED_IAM CAPABILITY_AUTO_EXPAND) 2>&1)
+ASTR=$((aws cloudformation update-stack --stack-name SC-DEV-MYSQL-Product --template-url  "https://$DEPLOY_BUCKET.s3.amazonaws.com/templates/dev-portfolio/sc_products/sc-dev-product-mysql-ra.json" --parameters '[{"ParameterKey":"RepoRootURL","UsePreviousValue":true}]' --capabilities CAPABILITY_IAM CAPABILITY_NAMED_IAM CAPABILITY_AUTO_EXPAND) 2>&1)
 ACODE=$?
 if [[ "$ACODE" -eq "255" && "$ASTR" =~ .(No updates are to be performed\.)$ ]]
 then 
