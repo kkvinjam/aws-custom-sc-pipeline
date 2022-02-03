@@ -52,19 +52,10 @@
                         "Description": "initial version",
                         "Info": {
                             "LoadTemplateFromURL": {
-                                "Fn::Sub": "${RepoRootURL}templates/ec2/sc-ec2-linux-ra.json"
+                                "Fn::Sub": "${RepoRootURL}templates/dev-portfolio/ec2/sc-ec2-linux-ra.json"
                             }
                         },
                         "Name": "v1.0"
-                    },
-                    {
-                        "Description": "updated version",
-                        "Info": {
-                            "LoadTemplateFromURL": {
-                                "Fn::Sub": "${RepoRootURL}templates/ec2/sc-ec2-linux-ra.json"
-                            }
-                        },
-                        "Name": "v1.1"
                     }
                 ]
             }

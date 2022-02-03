@@ -18,6 +18,7 @@ def update_sc_product_version(file_name):
     '''
 
     try:
+        print('Reading from:', file_name)
         with open(file_name, 'r') as content:
             data = json.load(content)
             content.close()
@@ -32,6 +33,7 @@ def update_sc_product_version(file_name):
         new_artifact=latest_artifact.copy()
         new_artifact['Name'] = updated_version
         artifacts.append(new_artifact)
+        print('Writing to:', file_name)
         with open(file_name, 'w') as new_content:
             json.dump(data, new_content)
             new_content.close()
@@ -109,9 +111,12 @@ def checkin_to_git_repo(access_key, repo_name, file_path):
     for i, entry in enumerate(file_list):
         with open(entry) as input_file:
             data = input_file.read()
+        print('Filename:', file_names[i])
         element = InputGitTreeElement(file_names[i], '100644', 'blob', data)
         element_list.append(element)
 
+    print('Element List:', element_list)
+    print('Base Tree:', base_tree)
     tree = repo.create_git_tree(element_list, base_tree)
     parent = repo.get_git_commit(main_sha)
     commit = repo.create_git_commit(commit_message, tree, [parent])
@@ -136,6 +141,7 @@ if __name__ == '__main__':
     REPO = ARGS.repo
     # FILE = 'templates/dev-portfolio/sc-dev-product-ec2-linux.json'
 
+    print('PORT File:', PORT_FILE)
     update_sc_product_version(PORT_FILE)
     pers_access_key = get_secret(SECRET)
     print(pers_access_key)
