@@ -1,0 +1,13 @@
+version: 0.2
+phases:
+  install:
+    commands:
+      - pip install PyGithub
+  build:
+    commands:
+      - echo "verifying the list of upated files"
+      - pwd
+      - git log -p -1 | grep '^diff --git' |awk -F" b/" '{print $NF}'
+      - ls -ltra
+      - chmod +x codepipeline/run-check-update.sh
+      - /bin/bash codepipeline/run-check-update.sh
